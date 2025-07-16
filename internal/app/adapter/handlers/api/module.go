@@ -7,6 +7,7 @@ import (
 
 var Module = fx.Options(
 	fx.Provide(handler.NewCommonHandler),
+	fx.Provide(handler.NewArticleHandler),
 	fx.Provide(NewRouter),
 	fx.Invoke(BasicMiddleware),
 	fx.Invoke(RegisterRoutes),

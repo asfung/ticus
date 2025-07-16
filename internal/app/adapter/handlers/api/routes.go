@@ -6,14 +6,17 @@ import (
 )
 
 type Router struct {
-	commonHandler *handler.CommonHandler
+	commonHandler  *handler.CommonHandler
+	articleHandler *handler.ArticleHandler
 }
 
 func NewRouter(
 	commonHandler *handler.CommonHandler,
+	articleHandler *handler.ArticleHandler,
 ) *Router {
 	return &Router{
-		commonHandler: commonHandler,
+		commonHandler:  commonHandler,
+		articleHandler: articleHandler,
 	}
 }
 
@@ -23,6 +26,11 @@ func (r *Router) RegisterRoutes(e *echo.Echo) {
 		return c.JSON(200, map[string]string{"message": "hello"})
 	}))
 	api.GET("/hello/:name", r.commonHandler.SayHello)
+
+	// Urticle
+	article := api.Group("/article")
+	article.POST("", r.articleHandler.CreateArticle)
+
 }
 
 func RegisterRoutes(e *echo.Echo, r *Router) {

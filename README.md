@@ -8,4 +8,4 @@ golb/murof
 - [echo - HTTP server](https://github.com/labstack/echo)
 - [configor - Configuration loader](https://github.com/jinzhu/configor)
 - [air - Live reload](https://github.com/air-verse/air)
-
+- [logrus - logging](https://github.com/sirupsen/logrus)
