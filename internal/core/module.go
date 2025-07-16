@@ -8,7 +8,6 @@ import (
 )
 
 var Module = fx.Options(
-	ports.Module,
 	fx.Provide(
 		func() *logrus.Logger {
 			return logrus.New()
