@@ -17,16 +17,14 @@ func NewRouter(
 	}
 }
 
-
 func (r *Router) RegisterRoutes(e *echo.Echo) {
 	api := e.Group("/api/v1")
 	api.GET("", echo.HandlerFunc(func(c echo.Context) error {
 		return c.JSON(200, map[string]string{"message": "hello"})
 	}))
+	api.GET("/hello/:name", r.commonHandler.SayHello)
 }
 
-
-func RegisterRoutes(e *echo.Echo, r *Router){
+func RegisterRoutes(e *echo.Echo, r *Router) {
 	r.RegisterRoutes(e)
 }
-

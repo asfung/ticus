@@ -1,4 +1,12 @@
 {
   "Environment": "Development",
-  "Port": "8080"
+  "Port": "8080",
+  "Database": {
+    "Host": "localhost",
+    "Port": "3306",
+    "User": "root",
+    "Password": "",
+    "DBName": "ticus_db",
+    "SSLMode": "disable"
+  }
 }
