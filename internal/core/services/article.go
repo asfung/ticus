@@ -1,11 +1,12 @@
 package services
 
 import (
+	"time"
+
 	"github.com/asfung/ticus/internal/app/adapter/handlers/api/mapper"
 	"github.com/asfung/ticus/internal/app/adapter/handlers/api/mapper/converter"
 	"github.com/asfung/ticus/internal/core/models"
 	"github.com/asfung/ticus/internal/core/ports"
-	"github.com/bwmarrin/snowflake"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -25,32 +26,89 @@ func NewArticleService(repository *ports.ArticleRepository, db *gorm.DB, log *lo
 	}
 }
 
-func (s *ArticleService) CreateArticle( /*ctx context.Context,*/ ectx echo.Context, request mapper.ArticleRequest) (*mapper.ArticleResponse, error) {
-	// transaction
-	// tx := s.DB.WithContext(ctx).Begin()
-	// defer tx.Rollback()
-	var articleRequest mapper.ArticleRequest
-	// err := ectx.Bind(&articleRequest)
-	// if err != nil {
-	// 	s.Log.Warnf("Invalid request body : %+v", err)
-	// 	return nil, err
-	// }
+func (s *ArticleService) CreateArticle(ctx echo.Context, req mapper.ArticleRequest) (*mapper.ArticleResponse, error) {
+	article := &models.Article{
+		Title:           req.Title,
+		Slug:            req.Slug,
+		ContentMarkdown: req.ContentMarkdown,
+		ContentHTML:     req.ContentHTML,
+		ContentJSON:     req.ContentJSON,
+		IsDraft:         req.IsDraft,
+		CategoryID:      req.CategoryID,
+		UserID:          1, // TODO: inject real user
+	}
+	if !req.IsDraft {
+		now := time.Now()
+		article.PublishedAt = &now
+	}
 
-	// migrained by error handling
+	if len(req.TagIDs) > 0 {
+		var tags []models.Tag
+		if err := s.DB.Where("id IN ?", req.TagIDs).Find(&tags).Error; err != nil {
+			return nil, err
+		}
+		article.Tags = tags
+	}
 
-	node, err := snowflake.NewNode(1)
-	if err != nil {
-		s.Log.Errorf("Failed to create snowflake node: %v", err)
+	if err := s.DB.Create(article).Error; err != nil {
 		return nil, err
 	}
-	id := node.Generate().Base58()
-	s.Repository.Create(s.DB, &models.Article{
-		ID:              id,
-		UserID:          1,
-		ContentMarkdown: request.Content,
-	})
-	logrus.Info("author request " + request.Author + "")
 
-	return converter.ArticleToResponse(&articleRequest), nil
+	return converter.ArticleToResponse(article), nil
+}
 
+func (s *ArticleService) UpdateArticle(id string, req mapper.ArticleRequest) (*mapper.ArticleResponse, error) {
+	article, err := s.Repository.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	article.Title = req.Title
+	article.Slug = req.Slug
+	article.ContentMarkdown = req.ContentMarkdown
+	article.ContentHTML = req.ContentHTML
+	article.ContentJSON = req.ContentJSON
+	article.IsDraft = req.IsDraft
+	article.CategoryID = req.CategoryID
+	if !req.IsDraft && article.PublishedAt == nil {
+		now := time.Now()
+		article.PublishedAt = &now
+	}
+
+	if len(req.TagIDs) > 0 {
+		var tags []models.Tag
+		if err := s.DB.Where("id IN ?", req.TagIDs).Find(&tags).Error; err != nil {
+			return nil, err
+		}
+		article.Tags = tags
+	}
+
+	if err := s.Repository.Update(article); err != nil {
+		return nil, err
+	}
+	return converter.ArticleToResponse(article), nil
+}
+
+func (s *ArticleService) GetArticleByID(id string) (*mapper.ArticleResponse, error) {
+	article, err := s.Repository.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return converter.ArticleToResponse(article), nil
+}
+
+func (s *ArticleService) DeleteArticle(id string) error {
+	return s.Repository.Delete(id)
+}
+
+func (s *ArticleService) ListArticles() ([]mapper.ArticleResponse, error) {
+	articles, err := s.Repository.FindAll()
+	if err != nil {
+		return nil, err
+	}
+	var res []mapper.ArticleResponse
+	for _, a := range articles {
+		res = append(res, *converter.ArticleToResponse(&a))
+	}
+	return res, nil
 }

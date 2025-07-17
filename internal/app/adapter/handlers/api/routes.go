@@ -29,7 +29,12 @@ func (r *Router) RegisterRoutes(e *echo.Echo) {
 
 	// Urticle
 	article := api.Group("/article")
+	// article.POST("", r.articleHandler.CreateArticle)
 	article.POST("", r.articleHandler.CreateArticle)
+	article.GET("", r.articleHandler.ListArticles)
+	article.GET("/:id", r.articleHandler.GetArticle)
+	article.PUT("/:id", r.articleHandler.UpdateArticle)
+	article.DELETE("/:id", r.articleHandler.DeleteArticle)
 
 }
 

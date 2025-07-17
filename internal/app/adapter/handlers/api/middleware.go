@@ -19,3 +19,6 @@ func BasicMiddleware(e *echo.Echo) {
 	}))
 
 }
+
+func AuthMiddleware(e *echo.Echo) {
+}
