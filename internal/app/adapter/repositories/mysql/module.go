@@ -13,6 +13,7 @@ var Module = fx.Options(
 		NewDatabase,
 		// fx.Annotate(ports.NewArticleRepository, fx.As(new(ports.ArticleRepository))), // figured out, is this equivalent to IoC world
 		ports.NewArticleRepository,
+		ports.NewAuthRepository,
 	),
 	fx.Invoke(RunMigrations),
 )

@@ -8,5 +8,6 @@
     "Password": "",
     "DBName": "ticus_db",
     "SSLMode": "disable"
-  }
+  },
+  "JWTSecret": "NOT_SECRET_AT_ALL"
 }

@@ -6,6 +6,7 @@ type AppConfig struct {
 	Environment string
 	Port        string
 	Database    DatabaseConfig
+	JWTSecret   string
 }
 
 type DatabaseConfig struct {

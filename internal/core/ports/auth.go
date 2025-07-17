@@ -7,6 +7,11 @@ import (
 )
 
 type AuthService interface {
+	Register(username, email, password string) (*models.User, error)
+	Login(username, password string) (accessToken string, refreshToken string, err error)
+	Refresh(refreshToken string) (accessToken string, err error)
+	Verify(token string) (*models.User, error)
+	FindById(id string) (*models.User, error)
 }
 
 type AuthRepository struct {

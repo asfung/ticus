@@ -14,5 +14,6 @@ var Module = fx.Options(
 		},
 		// fx.Annotate(/*SERVICE_IMPLEMENT, fx.As(new(ports.SERVICE_INTERFACE))*/),
 		fx.Annotate(services.NewArticleService, fx.As(new(ports.ArticleService))),
+		fx.Annotate(services.NewAuthService, fx.As(new(ports.AuthService))),
 	),
 )

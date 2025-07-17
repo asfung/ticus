@@ -7,4 +7,5 @@ import (
 
 var Module = fx.Options(
 	api.Module,
+	// provider.Module,
 )

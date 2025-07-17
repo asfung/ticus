@@ -27,6 +27,7 @@ func NewArticleService(repository *ports.ArticleRepository, db *gorm.DB, log *lo
 }
 
 func (s *ArticleService) CreateArticle(ctx echo.Context, req mapper.ArticleRequest) (*mapper.ArticleResponse, error) {
+	// user := ctx.Get("user").(*models.User)
 	article := &models.Article{
 		Title:           req.Title,
 		Slug:            req.Slug,
