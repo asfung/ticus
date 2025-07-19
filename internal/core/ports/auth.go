@@ -12,6 +12,7 @@ type AuthService interface {
 	Refresh(refreshToken string) (accessToken string, err error)
 	Verify(token string) (*models.User, error)
 	FindById(id string) (*models.User, error)
+	Logout(token string) error
 }
 
 type AuthRepository struct {

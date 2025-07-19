@@ -9,6 +9,7 @@ var Module = fx.Options(
 	fx.Provide(handler.NewCommonHandler),
 	fx.Provide(handler.NewArticleHandler),
 	fx.Provide(handler.NewAuthHandler),
+	fx.Provide(handler.NewOAuthHandler),
 
 	fx.Provide(NewRouter),
 

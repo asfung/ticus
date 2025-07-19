@@ -105,3 +105,19 @@ func (h *AuthHandler) Me(c echo.Context) error {
 	})
 
 }
+
+func (h *AuthHandler) Logout(c echo.Context) error {
+	token, err := utils.GetTokenFromHeader(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err = h.AuthService.Logout(token)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "you logged out pal",
+	})
+}

@@ -137,3 +137,14 @@ func (s *AuthService) FindById(id string) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+func (s *AuthService) Logout(token string) error {
+	claims := &jwtCustomClaims{}
+	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return s.JWTSecret, nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
