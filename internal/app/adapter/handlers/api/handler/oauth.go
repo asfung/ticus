@@ -19,11 +19,7 @@ func NewOAuthHandler(googleOAuthService *oauth.GoogleOAuthService) *OAuthHandler
 }
 
 func (h *OAuthHandler) GoogleLogin(ctx echo.Context) error {
-	state := ctx.QueryParam("state")
-	if state == "" {
-		state = "state"
-	}
-	authURL, err := h.GoogleOAuthService.GetAuthURL(state)
+	authURL, err := h.GoogleOAuthService.GetAuthURL(ctx.Response().Writer, ctx.Request())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to reach out the url: %v", err))
 	}
@@ -31,13 +27,7 @@ func (h *OAuthHandler) GoogleLogin(ctx echo.Context) error {
 }
 
 func (h *OAuthHandler) GoogleCallback(ctx echo.Context) error {
-	state := ctx.QueryParam("state")
-	code := ctx.QueryParam("code")
-	if state == "" || code == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "missing state")
-	}
-
-	user, err := h.GoogleOAuthService.CompleteUserAuth(ctx.Request().Context(), state, code)
+	user, err := h.GoogleOAuthService.CompleteUserAuth(ctx.Response().Writer, ctx.Request())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("authenticate with google failed: %v", err))
 	}

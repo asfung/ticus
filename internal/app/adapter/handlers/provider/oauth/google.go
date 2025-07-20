@@ -1,8 +1,8 @@
 package oauth
 
 import (
-	"context"
-	"net/url"
+	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/markbates/goth"
@@ -24,6 +24,10 @@ func NewGoogleOAuthService() *GoogleOAuthService {
 	clientSecret := os.Getenv("OAUTH_GOOGLE_CLIENT_SECRET")
 	callbackURL := "http://localhost:8080/api/v1/auth/google/callback"
 
+	if clientID == "" || clientSecret == "" {
+		panic("OAUTH_GOOGLE_CLIENT_ID and OAUTH_GOOGLE_CLIENT_SECRET environment variables are required")
+	}
+
 	provider := google.New(clientID, clientSecret, callbackURL, "email", "profile")
 	goth.UseProviders(provider)
 
@@ -32,35 +36,49 @@ func NewGoogleOAuthService() *GoogleOAuthService {
 	}
 }
 
-func (s *GoogleOAuthService) GetAuthURL(state string) (string, error) {
+func (s *GoogleOAuthService) GetAuthURL(w http.ResponseWriter, r *http.Request) (string, error) {
+	state := r.URL.Query().Get("state")
+	if state == "" {
+		state = "state"
+	}
+
 	sess, err := s.provider.BeginAuth(state)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to begin auth: %w", err)
 	}
+
 	url, err := sess.GetAuthURL()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get auth URL: %w", err)
 	}
+
 	return url, nil
 }
 
-func (s *GoogleOAuthService) CompleteUserAuth(ctx context.Context, state, code string) (*goth.User, error) {
-	sess, err := s.provider.BeginAuth(state)
-	if err != nil {
-		return nil, err
+func (s *GoogleOAuthService) CompleteUserAuth(w http.ResponseWriter, r *http.Request) (*goth.User, error) {
+	state := r.URL.Query().Get("state")
+	if state == "" {
+		state = "state"
 	}
 
-	params := url.Values{}
-	params.Set("state", state)
-	params.Set("code", code)
+	sess, err := s.provider.BeginAuth(state)
+	if err != nil {
+		return nil, fmt.Errorf("failed to begin auth: %w", err)
+	}
 
-	if _, err := sess.Authorize(s.provider, params); err != nil {
-		return nil, err
+	_, err = sess.Authorize(s.provider, r.URL.Query())
+	if err != nil {
+		return nil, fmt.Errorf("failed to authorize: %w", err)
 	}
 
 	user, err := s.provider.FetchUser(sess)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch user: %w", err)
 	}
+
 	return &user, nil
+}
+
+func (s *GoogleOAuthService) GetProvider() goth.Provider {
+	return s.provider
 }
