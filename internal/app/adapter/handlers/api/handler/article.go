@@ -22,6 +22,14 @@ func (h *ArticleHandler) CreateArticle(ctx echo.Context) error {
 		return echo.NewHTTPError(400, "Invalid request body")
 	}
 
+	if request.ID != "" {
+		response, err := h.ArticleService.UpdateArticle(request.ID, *request)
+		if err != nil {
+			return echo.NewHTTPError(500, "Failed to update existing article")
+		}
+		return ctx.JSON(200, response)
+	}
+
 	response, err := h.ArticleService.CreateArticle(ctx, *request)
 	if err != nil {
 		return echo.NewHTTPError(500, "Failed to create article")

@@ -1,6 +1,7 @@
 package mapper
 
 type ArticleRequest struct {
+	ID              string   `json:"id"`
 	Title           string   `json:"title"`
 	Slug            string   `json:"slug"`
 	ContentMarkdown string   `json:"content_markdown"`
