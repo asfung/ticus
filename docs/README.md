@@ -2,8 +2,6 @@
 
 ![](image/arch.webp)
 
-- hexagonal architecture? architectural pattern, just like microservice, clean-arch (the great uncle bob), event-driven, layered, ddd, mvc(bloat)
-
 Current Structured Project (the last update): 
 <pre>
 Ticus

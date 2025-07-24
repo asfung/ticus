@@ -94,15 +94,16 @@ func (h *AuthHandler) Me(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(401, err.Error())
 	}
-	return c.JSON(200, mapper.UserResponse{
-		ID:        user.ID,
-		Username:  user.Username,
-		Email:     user.Email,
-		AvatarURL: user.AvatarURL,
-		Bio:       user.Bio,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	})
+	// return c.JSON(200, mapper.UserResponse{
+	// 	ID:        user.ID,
+	// 	Username:  user.Username,
+	// 	Email:     user.Email,
+	// 	AvatarURL: user.AvatarURL,
+	// 	Bio:       user.Bio,
+	// 	CreatedAt: user.CreatedAt,
+	// 	UpdatedAt: user.UpdatedAt,
+	// })
+	return c.JSON(200, mapper.ToUserResponse(user))
 
 }
 

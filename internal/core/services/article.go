@@ -7,6 +7,7 @@ import (
 	"github.com/asfung/ticus/internal/app/adapter/handlers/api/mapper/converter"
 	"github.com/asfung/ticus/internal/core/models"
 	"github.com/asfung/ticus/internal/core/ports"
+	"github.com/asfung/ticus/internal/pkg/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -27,16 +28,21 @@ func NewArticleService(repository *ports.ArticleRepository, db *gorm.DB, log *lo
 }
 
 func (s *ArticleService) CreateArticle(ctx echo.Context, req mapper.ArticleRequest) (*mapper.ArticleResponse, error) {
-	// user := ctx.Get("user").(*models.User)
+	user := ctx.Get("user").(*models.User)
+	logrus.Info(user)
+
+	slug := utils.GenerateSlug(req.Title)
+
 	article := &models.Article{
-		Title:           req.Title,
-		Slug:            req.Slug,
+		Title: req.Title,
+		// Slug:            req.Slug,
+		Slug:            slug,
 		ContentMarkdown: req.ContentMarkdown,
 		ContentHTML:     req.ContentHTML,
 		ContentJSON:     req.ContentJSON,
 		IsDraft:         req.IsDraft,
 		CategoryID:      req.CategoryID,
-		UserID:          1, // TODO: inject real user
+		UserID:          user.ID,
 	}
 	if !req.IsDraft {
 		now := time.Now()
@@ -55,7 +61,9 @@ func (s *ArticleService) CreateArticle(ctx echo.Context, req mapper.ArticleReque
 		return nil, err
 	}
 
-	return converter.ArticleToResponse(article), nil
+	// return converter.ArticleToResponse(article), nil
+	ar := converter.BuildArticleResponse(s.DB, article)
+	return &ar, nil
 }
 
 func (s *ArticleService) UpdateArticle(id string, req mapper.ArticleRequest) (*mapper.ArticleResponse, error) {
@@ -64,8 +72,11 @@ func (s *ArticleService) UpdateArticle(id string, req mapper.ArticleRequest) (*m
 		return nil, err
 	}
 
+	slug := utils.GenerateSlug(req.Title)
+
 	article.Title = req.Title
-	article.Slug = req.Slug
+	// article.Slug = req.Slug
+	article.Slug = slug
 	article.ContentMarkdown = req.ContentMarkdown
 	article.ContentHTML = req.ContentHTML
 	article.ContentJSON = req.ContentJSON
@@ -87,7 +98,9 @@ func (s *ArticleService) UpdateArticle(id string, req mapper.ArticleRequest) (*m
 	if err := s.Repository.Update(article); err != nil {
 		return nil, err
 	}
-	return converter.ArticleToResponse(article), nil
+	// return converter.ArticleToResponse(article), nil
+	ar := converter.BuildArticleResponse(s.DB, article)
+	return &ar, nil
 }
 
 func (s *ArticleService) GetArticleByID(id string) (*mapper.ArticleResponse, error) {
@@ -95,21 +108,94 @@ func (s *ArticleService) GetArticleByID(id string) (*mapper.ArticleResponse, err
 	if err != nil {
 		return nil, err
 	}
-	return converter.ArticleToResponse(article), nil
+	// return converter.ArticleToResponse(article), nil
+	ar := converter.BuildArticleResponse(s.DB, article)
+	return &ar, nil
 }
 
 func (s *ArticleService) DeleteArticle(id string) error {
 	return s.Repository.Delete(id)
 }
 
-func (s *ArticleService) ListArticles() ([]mapper.ArticleResponse, error) {
-	articles, err := s.Repository.FindAll()
+func (s *ArticleService) ListArticles(page, size int) ([]mapper.ArticleResponse, int, int64, int64, error) {
+	if size <= 0 {
+		size = 10
+	}
+	if page <= 0 {
+		page = 1
+	}
+	offset := (page - 1) * size
+	articles, total, err := s.Repository.FindAllPaginated(size, offset)
 	if err != nil {
-		return nil, err
+		return nil, page, 0, 0, err
 	}
 	var res []mapper.ArticleResponse
 	for _, a := range articles {
-		res = append(res, *converter.ArticleToResponse(&a))
+		ar := converter.BuildArticleResponse(s.DB, &a)
+		res = append(res, ar)
 	}
-	return res, nil
+	totalPage := (total + int64(size) - 1) / int64(size)
+	return res, page, total, totalPage, nil
+}
+
+func (s *ArticleService) ToggleUpvote(ctx echo.Context, articleID string) (*mapper.ArticleResponse, error) {
+	user := ctx.Get("user").(*models.User)
+
+	article, err := s.Repository.FindByID(articleID)
+	if err != nil {
+		return nil, err
+	}
+
+	var upvote models.ArticleUpvote
+	tx := s.DB.Where("article_id = ? AND user_id = ?", articleID, user.ID).First(&upvote)
+	if tx.Error == nil {
+		if err := s.DB.Delete(&upvote).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		newUpvote := models.ArticleUpvote{
+			ArticleID: articleID,
+			UserID:    user.ID,
+		}
+		if err := s.DB.Create(&newUpvote).Error; err != nil {
+			return nil, err
+		}
+	}
+
+	// return converter.ArticleToResponse(article), nil
+	ar := converter.BuildArticleResponse(s.DB, article)
+	return &ar, nil
+}
+
+func (s *ArticleService) ToggleView(ctx echo.Context, articleID string) (*mapper.ArticleResponse, error) {
+	user := ctx.Get("user").(*models.User)
+
+	article, err := s.Repository.FindByID(articleID)
+	if err != nil {
+		return nil, err
+	}
+
+	var view models.ArticleView
+	tx := s.DB.Where("article_id = ? AND user_id = ?", articleID, user.ID).First(&view)
+	if tx.Error == nil {
+		if err := s.DB.Model(&view).Update("updated_at", time.Now()).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		newView := models.ArticleView{
+			ArticleID: articleID,
+			UserID:    user.ID,
+		}
+		if err := s.DB.Create(&newView).Error; err != nil {
+			return nil, err
+		}
+	}
+
+	// return converter.ArticleToResponse(article), nil
+	// ensure the article's user is loaded before building the response
+	// if s.DB.Model(article).Association("User").Error == nil && article.User.ID == "" {
+	// 	s.DB.Model(article).Association("User").Find(&article.User)
+	// }
+	ar := converter.BuildArticleResponse(s.DB, article)
+	return &ar, nil
 }

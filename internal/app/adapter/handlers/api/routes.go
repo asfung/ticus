@@ -48,6 +48,8 @@ func (r *Router) RegisterRoutes(e *echo.Echo) {
 	article.GET("/:id", r.articleHandler.GetArticle)
 	article.PUT("/:id", r.articleHandler.UpdateArticle)
 	article.DELETE("/:id", r.articleHandler.DeleteArticle)
+	article.POST("/:id/upvote", r.articleHandler.ToggleUpvote)
+	article.POST("/:id/view", r.articleHandler.ToggleView)
 
 	// Auth
 	auth := api.Group("/auth")

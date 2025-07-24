@@ -62,11 +62,11 @@ func (s *AuthService) Login(username, password string) (string, string, error) {
 		return "", "", errors.New("invalid credentials")
 	}
 
-	access, err := s.generateToken(user, 5*time.Minute)
+	access, err := s.generateToken(user, 24*time.Hour*7)
 	if err != nil {
 		return "", "", err
 	}
-	refresh, err := s.generateToken(user, 24*time.Hour)
+	refresh, err := s.generateToken(user, 24*time.Hour*30)
 	if err != nil {
 		return "", "", err
 	}

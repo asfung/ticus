@@ -13,7 +13,9 @@ type ArticleService interface {
 	UpdateArticle(id string, request mapper.ArticleRequest) (*mapper.ArticleResponse, error)
 	GetArticleByID(id string) (*mapper.ArticleResponse, error)
 	DeleteArticle(id string) error
-	ListArticles() ([]mapper.ArticleResponse, error)
+	ListArticles(page, size int) ([]mapper.ArticleResponse, int, int64, int64, error)
+	ToggleUpvote(ctx echo.Context, articleID string) (*mapper.ArticleResponse, error)
+	ToggleView(ctx echo.Context, articleID string) (*mapper.ArticleResponse, error)
 }
 
 type ArticleRepository struct {
@@ -46,6 +48,15 @@ func (r *ArticleRepository) Delete(id string) error {
 
 func (r *ArticleRepository) FindAll() ([]models.Article, error) {
 	var articles []models.Article
-	err := r.DB.Preload("Tags").Preload("Category").Find(&articles).Error
+	err := r.DB.Preload("Tags").Preload("User").Preload("Category").Find(&articles).Error
 	return articles, err
+}
+
+func (r *ArticleRepository) FindAllPaginated(limit, offset int) ([]models.Article, int64, error) {
+	var articles []models.Article
+	var total int64
+	db := r.DB.Model(&models.Article{}).Preload("Tags").Preload("User").Preload("Category")
+	db.Count(&total)
+	err := db.Limit(limit).Offset(offset).Find(&articles).Error
+	return articles, total, err
 }

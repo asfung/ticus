@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"fmt"
+
 	"github.com/asfung/ticus/internal/app/adapter/handlers/api/mapper"
 	"github.com/asfung/ticus/internal/core/ports"
 	"github.com/labstack/echo/v4"
@@ -48,11 +50,27 @@ func (h *ArticleHandler) GetArticle(ctx echo.Context) error {
 }
 
 func (h *ArticleHandler) ListArticles(ctx echo.Context) error {
-	res, err := h.ArticleService.ListArticles()
+	page := 1
+	size := 10
+	if p := ctx.QueryParam("page"); p != "" {
+		fmt.Sscanf(p, "%d", &page)
+	}
+	if s := ctx.QueryParam("size"); s != "" {
+		fmt.Sscanf(s, "%d", &size)
+	}
+	res, page, total, totalPage, err := h.ArticleService.ListArticles(page, size)
 	if err != nil {
 		return echo.NewHTTPError(500, "Failed to list articles")
 	}
-	return ctx.JSON(200, res)
+	return ctx.JSON(200, mapper.PageResponse[mapper.ArticleResponse]{
+		Data: res,
+		PageMetadata: mapper.PageMetadata{
+			Page:      page,
+			Size:      size,
+			TotalItem: total,
+			TotalPage: totalPage,
+		},
+	})
 }
 
 func (h *ArticleHandler) UpdateArticle(ctx echo.Context) error {
@@ -74,4 +92,30 @@ func (h *ArticleHandler) DeleteArticle(ctx echo.Context) error {
 		return echo.NewHTTPError(500, "Failed to delete article")
 	}
 	return ctx.NoContent(204)
+}
+
+func (h *ArticleHandler) ToggleUpvote(ctx echo.Context) error {
+	id := ctx.Param("id")
+	res, err := h.ArticleService.ToggleUpvote(ctx, id)
+	if err != nil {
+		return echo.NewHTTPError(500, "Failed to toggle upvote")
+	}
+	// return ctx.JSON(200, res)
+	return ctx.JSON(200, mapper.WebResponse[mapper.ArticleResponse]{
+		Data:   *res,
+		Errors: "",
+	})
+}
+
+func (h *ArticleHandler) ToggleView(ctx echo.Context) error {
+	id := ctx.Param("id")
+	res, err := h.ArticleService.ToggleView(ctx, id)
+	if err != nil {
+		return echo.NewHTTPError(500, "Failed to toggle view")
+	}
+	// return ctx.JSON(200, res)
+	return ctx.JSON(200, mapper.WebResponse[mapper.ArticleResponse]{
+		Data:   *res,
+		Errors: "",
+	})
 }
