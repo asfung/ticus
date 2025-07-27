@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/asfung/ticus/internal/app/adapter/handlers/provider/mailer"
+	"github.com/asfung/ticus/internal/app/adapter/outbound/mailer"
 	"github.com/labstack/echo/v4"
 )
 

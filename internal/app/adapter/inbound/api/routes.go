@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/asfung/ticus/internal/app/adapter/handlers/api/handler"
+	"github.com/asfung/ticus/internal/app/adapter/inbound/api/handler"
 	"github.com/labstack/echo/v4"
 )
 

@@ -3,8 +3,8 @@ package services
 import (
 	"time"
 
-	"github.com/asfung/ticus/internal/app/adapter/handlers/api/mapper"
-	"github.com/asfung/ticus/internal/app/adapter/handlers/api/mapper/converter"
+	"github.com/asfung/ticus/internal/app/adapter/inbound/api/mapper"
+	"github.com/asfung/ticus/internal/app/adapter/inbound/api/mapper/converter"
 	"github.com/asfung/ticus/internal/core/models"
 	"github.com/asfung/ticus/internal/core/ports"
 	"github.com/asfung/ticus/internal/pkg/utils"

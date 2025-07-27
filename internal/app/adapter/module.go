@@ -1,12 +1,12 @@
 package adapter
 
 import (
-	"github.com/asfung/ticus/internal/app/adapter/handlers"
-	"github.com/asfung/ticus/internal/app/adapter/repositories"
+	"github.com/asfung/ticus/internal/app/adapter/inbound"
+	"github.com/asfung/ticus/internal/app/adapter/outbound"
 	"go.uber.org/fx"
 )
 
 var Module = fx.Options(
-	handlers.Module,
-	repositories.Module,
+	inbound.Module,
+	outbound.Module,
 )

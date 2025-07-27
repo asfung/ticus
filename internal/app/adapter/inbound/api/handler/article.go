@@ -3,7 +3,7 @@ package handler
 import (
 	"fmt"
 
-	"github.com/asfung/ticus/internal/app/adapter/handlers/api/mapper"
+	"github.com/asfung/ticus/internal/app/adapter/inbound/api/mapper"
 	"github.com/asfung/ticus/internal/core/ports"
 	"github.com/labstack/echo/v4"
 )

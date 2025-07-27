@@ -1,7 +1,7 @@
 package ports
 
 import (
-	"github.com/asfung/ticus/internal/app/adapter/handlers/api/mapper"
+	"github.com/asfung/ticus/internal/app/adapter/inbound/api/mapper"
 	"github.com/asfung/ticus/internal/core/models"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"

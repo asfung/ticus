@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/asfung/ticus/internal/app/adapter/handlers/provider/oauth"
+	"github.com/asfung/ticus/internal/app/adapter/outbound/oauth"
 	"github.com/labstack/echo/v4"
 )
 

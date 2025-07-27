@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/asfung/ticus/internal/app/adapter/handlers/api/handler"
+	"github.com/asfung/ticus/internal/app/adapter/inbound/api/handler"
 	"go.uber.org/fx"
 )
 

@@ -2,7 +2,6 @@
 
 ![](image/arch.webp)
 
-Current Structured Project (the last update): 
 <pre>
 Ticus
 │
@@ -19,13 +18,14 @@ Ticus
 ├── internal
 │   ├── app
 │   │   ├── adapter
-│   │   │   ├── handlers
+│   │   │   ├── inbound
 │   │   │   │   ├── api
 │   │   │   │   │   ├── handler
 │   │   │   │   │   │   ├── article.go
 │   │   │   │   │   │   ├── auth.go
 │   │   │   │   │   │   ├── common.go
-│   │   │   │   │   │   └── oauth.go
+│   │   │   │   │   │   ├── oauth.go
+│   │   │   │   │   │   └── verify.go
 │   │   │   │   │   ├── mapper
 │   │   │   │   │   │   ├── article.go
 │   │   │   │   │   │   ├── converter
@@ -36,22 +36,24 @@ Ticus
 │   │   │   │   │   ├── module.go
 │   │   │   │   │   └── routes.go
 │   │   │   │   ├── grpc
-│   │   │   │   ├── module.go
-│   │   │   │   └── provider
-│   │   │   │       ├── jwt
-│   │   │   │       │   ├── jwt.go
-│   │   │   │       │   └── module.go
-│   │   │   │       ├── mailer
-│   │   │   │       ├── module.go
-│   │   │   │       └── oauth
-│   │   │   │           ├── google.go
-│   │   │   │           └── module.go
+│   │   │   │   └── module.go
 │   │   │   ├── module.go
-│   │   │   └── repositories
+│   │   │   └── outbound
+│   │   │       ├── jwt
+│   │   │       │   ├── jwt.go
+│   │   │       │   └── module.go
+│   │   │       ├── mailer
+│   │   │       │   ├── mailer.go
+│   │   │       │   └── module.go
 │   │   │       ├── module.go
-│   │   │       └── mysql
-│   │   │           ├── connection.go
-│   │   │           └── module.go
+│   │   │       ├── oauth
+│   │   │       │   ├── google.go
+│   │   │       │   └── module.go
+│   │   │       └── repository
+│   │   │           ├── module.go
+│   │   │           └── mysql
+│   │   │               ├── connection.go
+│   │   │               └── module.go
 │   │   └── app_module.go
 │   ├── core
 │   │   ├── models
@@ -76,6 +78,7 @@ Ticus
 │   │       └── echo_server.go
 │   └── pkg
 │       └── utils
+│           ├── article.go
 │           └── jwt.go
 ├── Makefile
 ├── README.md
