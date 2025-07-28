@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package grpc;
+
+option go_package = "github.com/asfung/ticus/internal/app/adapter/inbound/grpc";
+
+service ArticleService {
+    rpc GetAllArticle(GetAllArticleRequest) returns (GetAllArticleResponse);
+    rpc GetArticleById(GetArticleByIdRequest) returns (GetArticleByIdResponse);
+}
+
+message GetAllArticleRequest {
+    int32 page = 1;
+    int32 size = 2;
+}
+
+message GetAllArticleResponse {
+    repeated ArticleResponse articles = 1;
+    int32 current_page = 2;
+    int32 total_pages = 3;
+    int64 total_count = 4;
+}
+
+message GetArticleByIdRequest {
+    string id = 1;
+}
+
+message GetArticleByIdResponse {
+    ArticleResponse article = 1;
+}
+
+message ArticleResponse {
+    string id = 1;
+    string title = 2;
+    string slug = 3;
+    string content_markdown = 4;
+    string content_html = 5;
+    string content_json = 6;
+    bool is_draft = 7;
+    string published_at = 8;
+    int32 upvote_count = 9;
+    bool is_upvoted = 10;
+    int32 view_count = 11;
+    bool is_viewed = 12;
+    string latest_viewed_at = 13;
+    uint64 category_id = 14;
+    repeated string tag_ids = 15;
+    UserResponse user = 16;
+}
+
+message UserResponse {
+    string id = 1;
+    string username = 2;
+    string email = 3;
+    string avatar_url = 4;
+}
