@@ -22,18 +22,16 @@ type GRPCServer struct {
 func NewGRPCServer(articleService ports.ArticleService, log *logrus.Logger) *GRPCServer {
 	server := grpc.NewServer()
 
-	// Register the ArticleService
 	articleServer := NewArticleServer(articleService, log)
 	RegisterArticleServiceServer(server, articleServer)
 
-	// Enable reflection for debugging
 	reflection.Register(server)
 
 	return &GRPCServer{
 		server:         server,
 		articleService: articleService,
 		log:            log,
-		port:           "9090", // Default gRPC port
+		port:           "9090",
 	}
 }
 
